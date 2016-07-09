@@ -13,23 +13,24 @@ Arduboy arduboy;
  * "Color" or "value" means choosing whether a pixel is lit or not - if color is 0, the pixel is off (black), if color is 1, the pixel is on (white).
  */
 
-static int frameRate = 60;
-static int screenWidth = 128;
-static int screenHeight = 64;
+const uint8_t frameRate = 60;
+const uint8_t screenWidth = 128;
+const uint8_t screenHeight = 64;
 
-int spriteSizePx = 8;
+uint8_t spriteSizePx = 8;
 
 boolean gameStarted = false;
+uint8_t score = 0;
 
 int tankX;
 int tankY;
 int tankCurrentFrame;
 int score = 0;
 
-const int shootCooldown = 30;
-int currentShotCooldown = 0;
+const uint8_t shootCooldown = 30;
+uint8_t currentShotCooldown = 0;
 
-const int numBats = 3;
+const uint8_t numBats = 20;
 
 struct t_spaceBat {
   uint8_t X;
