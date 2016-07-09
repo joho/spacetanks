@@ -58,7 +58,7 @@ t_spaceBat *currentHitSpaceBat;
 // ...and survival
 void setup() {
   // put your setup code here, to run once:
-  arduboy.begin();
+  arduboy.beginNoLogo();
   arduboy.setFrameRate(frameRate);
 
   tankX = 16;
@@ -77,6 +77,7 @@ void loop() {
     arduboy.display();
 
     if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
+      arduboy.initRandomSeed();
       gameStarted = true;
     }
     return;
