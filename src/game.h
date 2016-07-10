@@ -50,15 +50,16 @@ const uint8_t numBats = 3;
 const uint16_t spawnRate = 5 * frameRate;
 const uint8_t pointsPerWave = 20;
 
-const int maxPaths = 6;
+const int maxPaths = 7;
 const int pathLength = 4;
 int8_t paths[][pathLength][2] = {
   {{-1, -1}, {-2, 0}, {-1, 1}, {-1, 0}},
   {{-1, -1}, {0, 0}, {-1, -1}, {-2, 0}},
   {{0, 2}, {-1, 1}, {-1, 2}, {-1, 0}},
   {{-1, 0}, {0, 0}, {-3, 0}, {0, 0}},
-  {{-1, -1}, {0, 0}, {-1, -1}, {-2, 0}},
-  {{0, -2}, {-1, 1}, {0, -2}, {-2, 0}},
+  {{-1, -2}, {0, -1}, {-1, -1}, {-2, 0}},
+  {{0, -2}, {-1, 0}, {0, -2}, {-2, 0}},
+  {{-1, 1}, {-1, 1}, {-1, 1}, {-1, 1}},
 };
 
 struct t_spaceBat {
