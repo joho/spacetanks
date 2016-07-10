@@ -47,7 +47,7 @@ const uint8_t maxEnemies = 20;
 const uint8_t numBats = 3;
 
 const uint16_t spawnRate = 5 * frameRate;
-const uint8_t pointsPerWave = 15;
+const uint8_t pointsPerWave = 20;
 
 const int maxPaths = 3;
 const int pathLength = 4;
@@ -67,6 +67,7 @@ struct t_spaceBat {
   uint8_t spriteSizePx;
   uint8_t currentPathIndex;
   uint8_t currentPathStepIndex;
+  uint8_t health;
 };
 
 const t_boundingBox regularBatBoundingBox = {
@@ -83,16 +84,17 @@ t_spaceBat spaceBats[maxEnemies];
 
 t_spaceBat *currentHitSpaceBat;
 
-
 void spawnBat(t_spaceBat *spaceBat) {
   spaceBat->spriteSizePx = 8;
   spaceBat->boundingBox = &regularBatBoundingBox;
+  spaceBat->health = 1;
 }
 
-uint16_t lastDraculaSpawnScore = 15; // skip ahead one wave on spawn
+uint16_t lastDraculaSpawnScore = 20;
 void spawnDracula(t_spaceBat *dracula) {
   dracula->spriteSizePx = 16;
   dracula->boundingBox = &draculaBoundingBox;
+  dracula->health = 3;
 }
 
 void spawnEnemy(t_spaceBat *enemy) {
@@ -112,7 +114,7 @@ void spawnEnemy(t_spaceBat *enemy) {
 
 void initEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
-    spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox, 8, 0, 0};
+    spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox, 8, 0, 0, 1};
   }
   for (int i = 0; i < numBats; i++) {
     spawnEnemy(&spaceBats[i]);
@@ -203,7 +205,7 @@ void handleInput() {
 }
 
 void drawScoreAndSevenYearsAgo() {
-  arduboy.setCursor(110, 1);
+  arduboy.setCursor(100, 1);
   char scoreBuffer[16];
   sprintf(scoreBuffer, "% 3d", score);
   arduboy.print(scoreBuffer);
@@ -257,7 +259,9 @@ void drawBats() {
       currentHitSpaceBat->hitAnimationFrame--;
 
       if (currentHitSpaceBat->hitAnimationFrame == 0) {
-        currentHitSpaceBat->isActive = false;
+        if (currentHitSpaceBat->health == 0) {
+          currentHitSpaceBat->isActive = false;
+        }
       }
     }
   }
@@ -290,12 +294,15 @@ void drawShootyShootyBoom() {
         for (int i = 0; i < maxEnemies; i++) {
           t_spaceBat *spaceBat = &spaceBats[i];
           if (!spaceBat->isActive) { continue; }
+
           if (hasLaserHit(player.X + player.spriteSizePx, laserY, spaceBat)) {
             laserWidth = spaceBat->X - (player.X + player.spriteSizePx) + 2;
-            spaceBat->hitAnimationFrame = 5;
-            currentHitSpaceBat = spaceBat;
 
-            score += spaceBat->spriteSizePx / 8;
+            spaceBat->hitAnimationFrame = 5;
+            score += spaceBat->health;
+            if (spaceBat->health > 0) { spaceBat->health--; }
+
+            currentHitSpaceBat = spaceBat;
           }
         }
       } else {
@@ -341,7 +348,7 @@ void sweepAndSpawn() {
   if (!player.deathAnimationFrame && arduboy.everyXFrames(spawnRate)) {
       uint8_t spawnedThisWave = 0;
 
-      uint8_t maxToSpawn = (score / pointsPerWave);
+      uint8_t maxToSpawn = score / pointsPerWave / 2;
       for (int i = 0; i < maxEnemies; i++) {
         t_spaceBat *spaceBat = &spaceBats[i];
         if (!spaceBat->isActive && spawnedThisWave <= maxToSpawn) {
