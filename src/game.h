@@ -13,8 +13,6 @@ const uint8_t frameRate = FRAMERATE;
 const uint8_t screenWidth = SCREEN_WIDTH;
 const uint8_t screenHeight = SCREEN_HEIGHT;
 
-uint8_t spriteSizePx = 8;
-
 uint16_t score = 0;
 
 struct t_boundingBox {
@@ -35,6 +33,7 @@ struct t_tank {
   uint8_t idleAnimationFrame;
   uint8_t deathAnimationFrame;
   const t_boundingBox *boundingBox;
+  uint8_t spriteSizePx;
   boolean isDead;
 };
 
@@ -55,6 +54,7 @@ struct t_spaceBat {
   uint8_t idleAnimationFrame;
   uint8_t hitAnimationFrame;
   const t_boundingBox *boundingBox;
+  uint8_t spriteSizePx;
 };
 
 const t_boundingBox regularBatBoundingBox = {
@@ -68,14 +68,14 @@ t_spaceBat *currentHitSpaceBat;
 
 void spawnBat(t_spaceBat *spaceBat) {
   spaceBat->X = rand() % 48 + 64;
-  spaceBat->Y = rand() % (64 - spriteSizePx);
+  spaceBat->Y = rand() % (64 - spaceBat->spriteSizePx);
   spaceBat->isActive = true;
   spaceBat->boundingBox = &regularBatBoundingBox;
 }
 
 void initEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
-    spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox};
+    spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox, 8};
   }
   for (int i = 0; i < numBats; i++) {
     spawnBat(&spaceBats[i]);
@@ -83,7 +83,7 @@ void initEnemies() {
 }
 
 void initPlayer() {
-  player = {16, 48, 0, 0, &tankBoundingBox, false};
+  player = {16, 48, 0, 0, &tankBoundingBox, 8, false};
   score = 0;
 }
 
@@ -138,7 +138,7 @@ void handleInput() {
   if (arduboy.pressed(DOWN_BUTTON)) {
       arduboy.setCursor(62, 52);
 
-      if (player.Y < screenHeight - spriteSizePx) {
+      if (player.Y < screenHeight - player.spriteSizePx) {
         player.Y++;
       }
   }
@@ -154,7 +154,7 @@ void handleInput() {
   if (arduboy.pressed(RIGHT_BUTTON)) {
       arduboy.setCursor(92, 30);
 
-      if (player.X < screenWidth - spriteSizePx) {
+      if (player.X < screenWidth - player.spriteSizePx) {
         player.X++;
       }
   }
@@ -177,7 +177,7 @@ void drawScoreAndSevenYearsAgo() {
 
 void drawTank() {
   if (!player.deathAnimationFrame || player.deathAnimationFrame % 2 == 0) {
-    arduboy.drawBitmap(player.X, player.Y, tank[player.idleAnimationFrame], spriteSizePx, spriteSizePx, WHITE);
+    arduboy.drawBitmap(player.X, player.Y, tank[player.idleAnimationFrame], player.spriteSizePx, player.spriteSizePx, WHITE);
   }
 
   if (arduboy.everyXFrames(16)) {
@@ -204,7 +204,7 @@ void drawBats() {
     }
 
     if (spaceBat->isActive) {
-      arduboy.drawBitmap(spaceBat->X, spaceBat->Y, bat[spaceBat->idleAnimationFrame], spriteSizePx, spriteSizePx, WHITE);
+      arduboy.drawBitmap(spaceBat->X, spaceBat->Y, bat[spaceBat->idleAnimationFrame], spaceBat->spriteSizePx, spaceBat->spriteSizePx, WHITE);
     }
 
     // draw explosion over hit bat
@@ -240,26 +240,26 @@ void drawShootyShootyBoom() {
 
     if (currentShotCooldown > 20) {
       int laserY = player.Y + 3;
-      int laserWidth = screenWidth - (player.X + spriteSizePx);
+      int laserWidth = screenWidth - (player.X + player.spriteSizePx);
 
       if (!currentHitSpaceBat) {
         for (int i = 0; i < maxEnemies; i++) {
           t_spaceBat *spaceBat = &spaceBats[i];
           if (!spaceBat->isActive) { continue; }
-          if (hasLaserHit(player.X + spriteSizePx, laserY, spaceBat)) {
-            laserWidth = spaceBat->X - (player.X + spriteSizePx) + 2;
+          if (hasLaserHit(player.X + player.spriteSizePx, laserY, spaceBat)) {
+            laserWidth = spaceBat->X - (player.X + player.spriteSizePx) + 2;
             spaceBat->hitAnimationFrame = 5;
             currentHitSpaceBat = spaceBat;
             score++;
           }
         }
       } else {
-        laserWidth = currentHitSpaceBat->X - (player.X + spriteSizePx) + 2;
+        laserWidth = currentHitSpaceBat->X - (player.X + player.spriteSizePx) + 2;
       }
 
-      arduboy.drawFastHLine(player.X + spriteSizePx, laserY, laserWidth, WHITE);
+      arduboy.drawFastHLine(player.X + player.spriteSizePx, laserY, laserWidth, WHITE);
       if (currentShotCooldown > 21) {
-        arduboy.drawBitmap(player.X + spriteSizePx, player.Y, pew[(30 - currentShotCooldown) / 3], spriteSizePx, spriteSizePx, WHITE);
+        arduboy.drawBitmap(player.X + player.spriteSizePx, player.Y, pew[(30 - currentShotCooldown) / 3], player.spriteSizePx, player.spriteSizePx, WHITE);
       }
     }
 
