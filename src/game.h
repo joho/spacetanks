@@ -48,6 +48,15 @@ const uint8_t numBats = 3;
 
 const uint16_t spawnRate = 5 * frameRate;
 const uint8_t pointsPerWave = 15;
+
+const int maxPaths = 3;
+const int pathLength = 4;
+int8_t paths[][pathLength][2] = {
+  {{-1, -1}, {-2, 0}, {-1, 1}, {-1, 0}},
+  {{-1, -1}, {0, 0}, {-1, -1}, {-2, 0}},
+  {{0, 2}, {-1, 1}, {-1, 2}, {-1, 0}},
+};
+
 struct t_spaceBat {
   uint8_t X;
   uint8_t Y;
@@ -56,6 +65,8 @@ struct t_spaceBat {
   uint8_t hitAnimationFrame;
   const t_boundingBox *boundingBox;
   uint8_t spriteSizePx;
+  uint8_t currentPathIndex;
+  uint8_t currentPathStepIndex;
 };
 
 const t_boundingBox regularBatBoundingBox = {
@@ -71,6 +82,7 @@ const t_boundingBox draculaBoundingBox = {
 t_spaceBat spaceBats[maxEnemies];
 
 t_spaceBat *currentHitSpaceBat;
+
 
 void spawnBat(t_spaceBat *spaceBat) {
   spaceBat->spriteSizePx = 8;
@@ -94,11 +106,13 @@ void spawnEnemy(t_spaceBat *enemy) {
   enemy->isActive = true;
   enemy->X = rand() % 48 + 64;
   enemy->Y = rand() % (64 - enemy->spriteSizePx);
+  enemy->currentPathIndex = rand() % maxPaths;
+  enemy->currentPathStepIndex = rand() % pathLength;
 }
 
 void initEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
-    spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox, 8};
+    spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox, 8, 0, 0};
   }
   for (int i = 0; i < numBats; i++) {
     spawnEnemy(&spaceBats[i]);
@@ -302,19 +316,23 @@ void advanceEnemies() {
 
   for (int i = 0; i < maxEnemies; i++) {
     t_spaceBat *spaceBat = &spaceBats[i];
+
     if (arduboy.everyXFrames(10)) {
       if (spaceBat->isActive) {
-        spaceBat->X--;
-        if (spaceBat->X <= 0) { spaceBat->X = screenWidth; }
+        spaceBat->X += paths[spaceBat->currentPathIndex][spaceBat->currentPathStepIndex][0];
+        spaceBat->Y += paths[spaceBat->currentPathIndex][spaceBat->currentPathStepIndex][1];
       }
     }
 
-    if (arduboy.everyXFrames(30)) {
+    if (arduboy.everyXFrames(FRAMERATE)) {
       if (spaceBat->isActive) {
-        spaceBat->Y++;
-        if (spaceBat->Y > screenHeight) { spaceBat->Y = 0; }
+        spaceBat->currentPathStepIndex++;
+        if (spaceBat->currentPathStepIndex > pathLength) { spaceBat->currentPathStepIndex = 0; }
       }
     }
+
+    if (spaceBat->X <= 0) { spaceBat->X = screenWidth; }
+    if (spaceBat->Y > screenHeight) { spaceBat->Y = 0; }
   }
 }
 
