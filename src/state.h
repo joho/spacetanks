@@ -40,10 +40,7 @@ void stateIntro() {
 
 void stateStart() {
   arduboy.initRandomSeed();
-  initEnemies();
-  // TODO
-  // initScore();
-  // initPlayer();
+  initGame();
   gameState = GAME_STATE_PLAYING;
 }
 

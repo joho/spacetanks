@@ -38,7 +38,7 @@ struct t_tank {
   boolean isDead;
 };
 
-t_tank player = {16, 48, 0, 0, &tankBoundingBox, false};
+t_tank player;
 
 const uint8_t shootCooldown = 30;
 uint8_t currentShotCooldown = 0;
@@ -75,11 +75,21 @@ void spawnBat(t_spaceBat *spaceBat) {
 
 void initEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
-    spaceBats[i] = {0, 0, false, i % 3, 0};
+    spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox};
   }
   for (int i = 0; i < numBats; i++) {
     spawnBat(&spaceBats[i]);
   }
+}
+
+void initPlayer() {
+  player = {16, 48, 0, 0, &tankBoundingBox, false};
+  score = 0;
+}
+
+void initGame() {
+  initEnemies();
+  initPlayer();
 }
 
 boolean isPointInBox(uint8_t pointX, uint8_t pointY, uint8_t spriteX, uint8_t spriteY, const t_boundingBox *boundingBox) {
@@ -183,8 +193,10 @@ void drawTank() {
 }
 
 void drawBats() {
-  for (int i = 0; i < numBats; i++) {
+  for (int i = 0; i < maxEnemies; i++) {
     t_spaceBat *spaceBat = &spaceBats[i];
+    if (!spaceBat->isActive) { continue; }
+
     if (arduboy.everyXFrames(24)) {
       spaceBat->idleAnimationFrame++;
       spaceBat->idleAnimationFrame = spaceBat->idleAnimationFrame % 2;
@@ -229,7 +241,7 @@ void drawShootyShootyBoom() {
       int laserWidth = screenWidth - (player.X + spriteSizePx);
 
       if (!currentHitSpaceBat) {
-        for (int i = 0; i < numBats; i++) {
+        for (int i = 0; i < maxEnemies; i++) {
           t_spaceBat *spaceBat = &spaceBats[i];
           if (!spaceBat->isActive) { continue; }
           if (hasLaserHit(player.X + spriteSizePx, laserY, spaceBat)) {
@@ -254,7 +266,7 @@ void drawShootyShootyBoom() {
 }
 
 void advanceEnemies() {
-  for (int i = 0; i < numBats; i++) {
+  for (int i = 0; i < maxEnemies; i++) {
     t_spaceBat *spaceBat = &spaceBats[i];
     if (arduboy.everyXFrames(10)) {
       if (spaceBat->isActive) {
@@ -275,7 +287,8 @@ void advanceEnemies() {
 void sweepAndSpawn() {
   if (arduboy.everyXFrames(spawnRate)) {
       uint8_t spawnedThisWave = 0;
-      uint8_t maxToSpawn = score - 3 * (score / pointsPerWave);
+
+      uint8_t maxToSpawn = (score / pointsPerWave) * 3;
       for (int i = 0; i < maxEnemies; i++) {
         t_spaceBat *spaceBat = &spaceBats[i];
         if (!spaceBat->isActive && spawnedThisWave <= maxToSpawn) {
