@@ -16,13 +16,13 @@
 uint8_t gameState = GAME_STATE_BANNER;
 
 void drawBanner() {
-  // TODO drawbitmap
+  arduboy.drawBitmap(0, 0, banner[0], screenWidth, screenHeight, WHITE);
 }
 
 void stateBanner() {
-  if (arduboy.pressed(A_BUTTON | B_BUTTON)) {
-    initIntro();
-    gameState = GAME_STATE_INTRO;
+  if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
+    // initIntro();
+    gameState = GAME_STATE_START;
   }
 
   drawBanner();
