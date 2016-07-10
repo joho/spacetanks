@@ -77,14 +77,14 @@ void spawnBat(t_spaceBat *spaceBat) {
   spaceBat->boundingBox = &regularBatBoundingBox;
 }
 
-uint16_t lastDraculaSpawnScore = 0;
+uint16_t lastDraculaSpawnScore = 15; // skip ahead one wave on spawn
 void spawnDracula(t_spaceBat *dracula) {
   dracula->spriteSizePx = 16;
   dracula->boundingBox = &draculaBoundingBox;
 }
 
 void spawnEnemy(t_spaceBat *enemy) {
-  if (score != lastDraculaSpawnScore && score % pointsPerWave == 0) {
+  if (score >= lastDraculaSpawnScore && score % pointsPerWave == 0) {
     lastDraculaSpawnScore = score;
     spawnDracula(enemy);
   } else {
@@ -182,8 +182,6 @@ void handleInput() {
   }
 
   if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
-      arduboy.setCursor(1, 1);
-      arduboy.print(F("LASER!"));
       if (currentShotCooldown == 0 ) {
         currentShotCooldown = shootCooldown;
       }
@@ -267,7 +265,7 @@ void drawShootyShootyBoom() {
     if (currentShotCooldown == 1) {
       arduboy.setRGBled(0, 0, 0);
     } else {
-      arduboy.setRGBled(8 * currentShotCooldown, 8 * currentShotCooldown, 255);
+      arduboy.setRGBled(254, 8 * currentShotCooldown, 8 * currentShotCooldown);
     }
 
     if (currentShotCooldown > 20) {
@@ -324,7 +322,7 @@ void sweepAndSpawn() {
   if (!player.deathAnimationFrame && arduboy.everyXFrames(spawnRate)) {
       uint8_t spawnedThisWave = 0;
 
-      uint8_t maxToSpawn = (score / pointsPerWave) * 3;
+      uint8_t maxToSpawn = (score / pointsPerWave);
       for (int i = 0; i < maxEnemies; i++) {
         t_spaceBat *spaceBat = &spaceBats[i];
         if (!spaceBat->isActive && spawnedThisWave <= maxToSpawn) {
