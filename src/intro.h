@@ -3,15 +3,15 @@
 
 #include "globals.h"
 
-#define INTRO_MESSAGE_COUNT = 6
-#define INTRO_MESSAGE_DURATION = 120
+#define INTRO_MESSAGE_COUNT 6
+#define INTRO_MESSAGE_DURATION 120
 
-char introMessages[INTRO_MESSAGE_COUNT][] = {
+const char *introMessages[] = {
   "The year is 20XX",
-  "War is beginning"
-  "Dracula takes to the stars"
-  "Man your tank for great honor"
-  "..."
+  "War is beginning",
+  "Dracula takes to the stars",
+  "Man your tank for great honor",
+  "...",
   "...and survival!"
 };
 

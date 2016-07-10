@@ -1,6 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <Arduboy.h>
+
 /* Bitmaps */
 #include "tank.h"
 #include "bat.h"
@@ -63,6 +65,13 @@ t_spaceBat spaceBats[maxEnemies];
 
 t_spaceBat *currentHitSpaceBat;
 
+void spawnBat(t_spaceBat *spaceBat) {
+  spaceBat->X = rand() % 48 + 64;
+  spaceBat->Y = rand() % (64 - spriteSizePx);
+  spaceBat->isActive = true;
+  spaceBat->boundingBox = &regularBatBoundingBox;
+}
+
 void initEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
     spaceBats[i] = {0, 0, false, i % 3, 0};
@@ -70,6 +79,24 @@ void initEnemies() {
   for (int i = 0; i < numBats; i++) {
     spawnBat(&spaceBats[i]);
   }
+}
+
+boolean isPointInBox(uint8_t pointX, uint8_t pointY, uint8_t spriteX, uint8_t spriteY, const t_boundingBox *boundingBox) {
+  uint8_t leftX = spriteX + boundingBox->topLeftXOffset;
+  uint8_t topY = spriteY + boundingBox->topLeftYOffset;
+
+  uint8_t rightX = spriteX + boundingBox->bottomRightXOffset;
+  uint8_t bottomY = spriteY + boundingBox->bottomRightYOffset;
+
+  return pointX >= leftX && pointX <= rightX &&
+         pointY >= topY && pointY <= bottomY;
+}
+
+boolean hasBoundingBoxOverlap(t_spaceBat *spaceBat) {
+  return isPointInBox(player.X + player.boundingBox->topLeftXOffset, player.Y + player.boundingBox->topLeftYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox) ||
+         isPointInBox(player.X + player.boundingBox->bottomRightXOffset, player.Y + player.boundingBox->topLeftYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox) ||
+         isPointInBox(player.X + player.boundingBox->topLeftXOffset, player.Y + player.boundingBox->bottomRightYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox) ||
+         isPointInBox(player.X + player.boundingBox->bottomRightXOffset, player.Y + player.boundingBox->bottomRightYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox);
 }
 
 void calculatePlayerCollision() {
@@ -83,24 +110,6 @@ void calculatePlayerCollision() {
       break;
     }
   }
-}
-
-boolean hasBoundingBoxOverlap(t_spaceBat *spaceBat) {
-  return isPointInBox(player.X + player.boundingBox->topLeftXOffset, player.Y + player.boundingBox->topLeftYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox) ||
-         isPointInBox(player.X + player.boundingBox->bottomRightXOffset, player.Y + player.boundingBox->topLeftYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox) ||
-         isPointInBox(player.X + player.boundingBox->topLeftXOffset, player.Y + player.boundingBox->bottomRightYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox) ||
-         isPointInBox(player.X + player.boundingBox->bottomRightXOffset, player.Y + player.boundingBox->bottomRightYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox);
-}
-
-boolean isPointInBox(uint8_t pointX, uint8_t pointY, uint8_t spriteX, uint8_t spriteY, const t_boundingBox *boundingBox) {
-  uint8_t leftX = spriteX + boundingBox->topLeftXOffset;
-  uint8_t topY = spriteY + boundingBox->topLeftYOffset;
-
-  uint8_t rightX = spriteX + boundingBox->bottomRightXOffset;
-  uint8_t bottomY = spriteY + boundingBox->bottomRightYOffset;
-
-  return pointX >= leftX && pointX <= rightX &&
-         pointY >= topY && pointY <= bottomY;
 }
 
 void handleInput() {
@@ -169,12 +178,6 @@ void drawTank() {
   }
 }
 
-void spawnBat(t_spaceBat *spaceBat) {
-  spaceBat->X = rand() % 48 + 64;
-  spaceBat->Y = rand() % (64 - spriteSizePx);
-  spaceBat->isActive = true;
-  spaceBat->boundingBox = &regularBatBoundingBox;
-}
 
 void drawBats() {
   for (int i = 0; i < numBats; i++) {
@@ -204,6 +207,12 @@ void drawBats() {
       }
     }
   }
+}
+
+boolean hasLaserHit(uint8_t laserOriginX, uint8_t y, t_spaceBat *spaceBat) {
+  return laserOriginX < spaceBat->X + spaceBat->boundingBox->topLeftXOffset &&
+      y >= spaceBat->Y + spaceBat->boundingBox->topLeftYOffset &&
+      y <= spaceBat->Y + spaceBat->boundingBox->bottomRightYOffset;
 }
 
 void drawShootyShootyBoom() {
@@ -239,12 +248,6 @@ void drawShootyShootyBoom() {
 
     currentShotCooldown--;
   }
-}
-
-boolean hasLaserHit(uint8_t laserOriginX, uint8_t y, t_spaceBat *spaceBat) {
-  return laserOriginX < spaceBat->X + spaceBat->boundingBox->topLeftXOffset &&
-      y >= spaceBat->Y + spaceBat->boundingBox->topLeftYOffset &&
-      y <= spaceBat->Y + spaceBat->boundingBox->bottomRightYOffset;
 }
 
 void advanceEnemies() {

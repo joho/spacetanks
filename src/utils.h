@@ -4,10 +4,10 @@
 #include "Arduboy.h"
 #include <string.h>
 
-#define MAX_FLASHING_MESSAGE_LENGTH=20
-#define FLASHING_MESSAGE_TEXT_SIZE=1
-#define FLASHING_MESSAGE_TEXT_H=8
-#define FLASHING_MESSAGE_TEXT_W=6
+#define MAX_FLASHING_MESSAGE_LENGTH 20
+#define FLASHING_MESSAGE_TEXT_SIZE 1
+#define FLASHING_MESSAGE_TEXT_H 8
+#define FLASHING_MESSAGE_TEXT_W 6
 
 char *flashingMessageText;
 uint8_t flashingMessageFrame = 0;
@@ -15,7 +15,7 @@ uint8_t flashingMessageX;
 uint8_t flashingMessageY;
 
 void startFlashingMessage(char *text, uint8_t duration) {
-  size_t len = strlen(text, MAX_FLASHING_MESSAGE_LENGTH);
+  size_t len = strlen(text);
 
   flashingMessageText = text;
   flashingMessageFrame = duration;
@@ -24,8 +24,8 @@ void startFlashingMessage(char *text, uint8_t duration) {
   flashingMessageY = 28;
 }
 
-void drawFlashingMessage(Arduboy *arduboy) {
-  if flashingMessageFrame == 0 { return }
+void drawFlashingMessage() {
+  if (flashingMessageFrame == 0) { return; }
 
   flashingMessageFrame--;
 
