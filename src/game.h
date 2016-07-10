@@ -81,7 +81,7 @@ const t_boundingBox draculaBoundingBox = {
   15, 15
 };
 
-const t_boundingBox megaDraculaBoundingBox = {
+const t_boundingBox megadraculaBoundingBox = {
   1, 1,
   30, 30
 };
@@ -115,7 +115,7 @@ void spawnDracula(t_spaceBat *dracula) {
 void spawnMegaDracular(t_spaceBat *megadracula) {
   spawnEnemy(megadracula);
   megadracula->spriteSizePx = 32;
-  megadracula->boundingBox = &draculaBoundingBox;
+  megadracula->boundingBox = &megadraculaBoundingBox;
   megadracula->health = 10;
 }
 
@@ -373,7 +373,7 @@ void sweepAndSpawn() {
         if (!spaceBat->isActive && spawnedThisWave <= maxToSpawn) {
           if (score >= nextMegadraculaAtScore && !megadraculaLives) {
             for (int j = 0; j < maxEnemies; j++) {
-              spaceBats[i].isActive = false;
+              spaceBats[j].isActive = false;
             }
             spawnMegaDracular(spaceBat);
             megadraculaLives = true;
