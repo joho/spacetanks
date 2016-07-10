@@ -27,17 +27,21 @@ void initIntro() {
   arduboy.setTextWrap(true);
 
   arduboy.audio.on();
-  arduboy.tunes.playScore(introMusic);
+  arduboy.tunes.playScore(powerIntroMusic);
+}
+
+void exitIntro() {
+  introFinished = true;
+  arduboy.tunes.stopScore();
 }
 
 void drawIntro() {
   introFrameCount++;
   if(arduboy.everyXFrames(INTRO_MESSAGE_DURATION)) { introMessage++; }
-  if(introMessage >= INTRO_MESSAGE_COUNT) { introFinished = true; }
+  if(introMessage >= INTRO_MESSAGE_COUNT) { exitIntro(); }
   if(introFrameCount > FRAMERATE &&
       (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON))) {
-    introFinished = true;
-    arduboy.tunes.stopScore();
+    exitIntro();
   }
 
   if(!introFinished) {
@@ -45,5 +49,6 @@ void drawIntro() {
     arduboy.print(introMessages[introMessage]);
   }
 }
+
 
 #endif

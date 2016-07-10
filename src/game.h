@@ -74,6 +74,7 @@ void spawnBat(t_spaceBat *spaceBat) {
   spaceBat->boundingBox = &regularBatBoundingBox;
 }
 
+uint16_t lastDraculaSpawnScore = 0;
 void spawnDracula(t_spaceBat *dracula) {
 }
 
