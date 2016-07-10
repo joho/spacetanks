@@ -15,6 +15,10 @@ const char *introMessages[] = {
   "...and survival!"
 };
 
+const byte introMusic[] = {
+  0x10, 0x12, 0x14, 0x15, 0x17
+};
+
 uint8_t introMessage = 0;
 boolean introFinished = false;
 uint8_t introFrameCount = 0;
@@ -24,6 +28,9 @@ void initIntro() {
   introFinished = false;
   arduboy.setTextSize(1);
   arduboy.setTextWrap(true);
+
+  arduboy.audio.on();
+  arduboy.tunes.playScore(introMusic);
 }
 
 void drawIntro() {
@@ -33,6 +40,7 @@ void drawIntro() {
   if(introFrameCount > FRAMERATE &&
       (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON))) {
     introFinished = true;
+    arduboy.audio.off();
   }
 
   if(!introFinished) {

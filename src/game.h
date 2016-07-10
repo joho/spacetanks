@@ -88,6 +88,7 @@ void initPlayer() {
 }
 
 void initGame() {
+  arduboy.audio.on();
   initEnemies();
   initPlayer();
 }
@@ -234,6 +235,7 @@ void drawShootyShootyBoom() {
   if (currentShotCooldown > 0) {
     if (currentShotCooldown == shootCooldown) {
       currentHitSpaceBat = NULL;
+      arduboy.tunes.tone(300, 50);
     }
 
     if (currentShotCooldown > 20) {

@@ -6,6 +6,7 @@
 
 void setup() {
   arduboy.beginNoLogo();
+  arduboy.audio.begin();
   arduboy.setFrameRate(FRAMERATE);
 }
 
