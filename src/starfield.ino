@@ -35,7 +35,9 @@ uint8_t currentShotCooldown = 0;
 
 const uint8_t maxEnemies = 20;
 const uint8_t numBats = 3;
+uint8_t waveCounter = 0;
 
+const uint16_t spawnRate = 5 * frameRate;
 struct t_spaceBat {
   uint8_t X;
   uint8_t Y;
@@ -44,11 +46,7 @@ struct t_spaceBat {
   uint8_t hitAnimationFrame;
 };
 
-t_spaceBat spaceBats[numBats] = {
-  {110, 32, true, 0, 0},
-  {104, 7, true, 1, 0},
-  {90, 42, true, 1, 0}
-};
+t_spaceBat spaceBats[maxEnemies];
 
 t_spaceBat *currentHitSpaceBat;
 
@@ -62,6 +60,7 @@ void setup() {
   // put your setup code here, to run once:
   arduboy.beginNoLogo();
   arduboy.setFrameRate(frameRate);
+
 }
 
 void loop() {
@@ -74,6 +73,13 @@ void loop() {
 
     if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
       arduboy.initRandomSeed();
+
+      for (int i = 0; i < maxEnemies; i++) {
+        spaceBats[i] = {0, 0, false, i % 3, 0};
+      }
+      for (int i = 0; i < numBats; i++) {
+        spawnBat(&spaceBats[i]);
+      }
       gameStarted = true;
     }
     return;
@@ -86,6 +92,7 @@ void loop() {
   drawTank();
   drawScoreAndSevenYearsAgo();
   advanceEnemies();
+  sweepAndSpawn();
   arduboy.display();
 }
 
@@ -145,6 +152,12 @@ void drawTank() {
     player.idleAnimationFrame++;
     player.idleAnimationFrame = player.idleAnimationFrame % 3;
   }
+}
+
+void spawnBat(t_spaceBat *spaceBat) {
+  spaceBat->X = rand() % 48 + 64;
+  spaceBat->Y = rand() % (64 - spriteSizePx);
+  spaceBat->isActive = true;
 }
 
 void drawBats() {
@@ -228,6 +241,20 @@ void advanceEnemies() {
         if (spaceBat->Y > screenHeight) { spaceBat->Y = 0; }
       }
     }
+  }
+}
+
+void sweepAndSpawn() {
+  if (arduboy.everyXFrames(spawnRate)) {
+      uint8_t spawnedThisWave = 0;
+      uint8_t maxToSpawn = score - 3 * (waveCounter + 1);
+      for (int i = 0; i < maxEnemies; i++) {
+        t_spaceBat *spaceBat = &spaceBats[i];
+        if (!spaceBat->isActive && spawnedThisWave <= maxToSpawn) {
+          spawnBat(spaceBat);
+          spawnedThisWave++;
+        }
+      }
   }
 }
 
