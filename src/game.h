@@ -307,7 +307,6 @@ void drawShootyShootyBoom() {
   if (currentShotCooldown > 0) {
     if (currentShotCooldown == shootCooldown) {
       currentHitSpaceBat = NULL;
-      arduboy.tunes.tone(300, 50);
     }
 
     if (currentShotCooldown == 20) {
@@ -326,14 +325,20 @@ void drawShootyShootyBoom() {
           if (!spaceBat->isActive) { continue; }
 
           if (hasLaserHit(player.X + player.spriteSizePx, laserY, spaceBat)) {
-            laserWidth = spaceBat->X - (player.X + player.spriteSizePx) + 2;
 
-            spaceBat->hitAnimationFrame = 5;
-            score++;
-            if (spaceBat->health > 0) { spaceBat->health--; }
-
-            currentHitSpaceBat = spaceBat;
+            if (!currentHitSpaceBat || spaceBat->X < currentHitSpaceBat->X) {
+              currentHitSpaceBat = spaceBat;
+            }
           }
+        }
+
+        if (currentHitSpaceBat) {
+          laserWidth = currentHitSpaceBat->X - (player.X + player.spriteSizePx) + 2;
+
+          currentHitSpaceBat->hitAnimationFrame = 5;
+          score++;
+          arduboy.tunes.tone(300, 50);
+          if (currentHitSpaceBat->health > 0) { currentHitSpaceBat->health--; }
         }
       } else {
         laserWidth = currentHitSpaceBat->X - (player.X + player.spriteSizePx) + 2;
