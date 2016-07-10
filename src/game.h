@@ -4,12 +4,12 @@
 #include <Arduboy.h>
 
 /* Bitmaps */
-#include "tank.h"
-#include "bat.h"
-#include "pew.h"
-#include "boom.h"
-#include "dracula.h"
-#include "megadracula.h"
+#include "bitmaps/tank.h"
+#include "bitmaps/bat.h"
+#include "bitmaps/pew.h"
+#include "bitmaps/boom.h"
+#include "bitmaps/dracula.h"
+#include "bitmaps/megadracula.h"
 
 const uint8_t frameRate = FRAMERATE;
 const uint8_t screenWidth = SCREEN_WIDTH;

@@ -1,7 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include "banner.h"
+#include "bitmaps/banner.h"
 #include "game.h"
 #include "globals.h"
 #include "intro.h"
