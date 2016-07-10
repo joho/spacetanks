@@ -50,7 +50,7 @@ const uint8_t numBats = 3;
 const uint16_t spawnRate = 5 * frameRate;
 const uint8_t pointsPerWave = 20;
 
-const int maxPaths = 7;
+const int maxPaths = 8;
 const int pathLength = 4;
 int8_t paths[][pathLength][2] = {
   {{-1, -1}, {-2, 0}, {-1, 1}, {-1, 0}},
@@ -60,6 +60,7 @@ int8_t paths[][pathLength][2] = {
   {{-1, -2}, {0, -1}, {-1, -1}, {-2, 0}},
   {{0, -2}, {-1, 0}, {0, -2}, {-2, 0}},
   {{-1, 1}, {-1, 1}, {-1, 1}, {-1, 1}},
+  {{1, -1}, {2, 0}, {3, 0}, {1, 1}},
 };
 
 struct t_spaceBat {
@@ -368,8 +369,10 @@ void advanceEnemies() {
       }
     }
 
-    if (spaceBat->X <= 0) { spaceBat->X = screenWidth; }
-    if (spaceBat->Y > screenHeight) { spaceBat->Y = 0; }
+    if (spaceBat->X == 0) { spaceBat->X = screenWidth - spaceBat->spriteSizePx; }
+    if (spaceBat->X >= screenWidth) { spaceBat->X = 0 + 1; }
+    if (spaceBat->Y == 0) { spaceBat->Y = screenHeight - spaceBat->spriteSizePx; }
+    if (spaceBat->Y >= screenHeight) { spaceBat->Y = 0 + 1; }
   }
 }
 
@@ -380,6 +383,8 @@ void sweepAndSpawn() {
       uint8_t spawnedThisWave = 0;
 
       uint8_t maxToSpawn = score / pointsPerWave / 2;
+      uint8_t probabilityOfDracular = score / pointsPerWave;
+
       for (int i = 0; i < maxEnemies; i++) {
         t_spaceBat *spaceBat = &spaceBats[i];
         if (!spaceBat->isActive && spawnedThisWave <= maxToSpawn) {
@@ -390,7 +395,7 @@ void sweepAndSpawn() {
             spawnMegaDracular(spaceBat);
             megadraculaLives = true;
             break;
-          } else if (score >= nextDraculaAtScore && score % pointsPerWave == 0) {
+          } else if (rand() % 50 <= probabilityOfDracular) {
             nextDraculaAtScore = score;
             spawnDracula(spaceBat);
           } else {
