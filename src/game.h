@@ -8,7 +8,8 @@
 #include "bat.h"
 #include "pew.h"
 #include "boom.h"
-#include "boss.h"
+#include "dracula.h"
+#include "megadracula.h"
 
 const uint8_t frameRate = FRAMERATE;
 const uint8_t screenWidth = SCREEN_WIDTH;
@@ -80,31 +81,16 @@ const t_boundingBox draculaBoundingBox = {
   15, 15
 };
 
+const t_boundingBox megaDraculaBoundingBox = {
+  1, 1,
+  30, 30
+};
+
 t_spaceBat spaceBats[maxEnemies];
 
 t_spaceBat *currentHitSpaceBat;
 
-void spawnBat(t_spaceBat *spaceBat) {
-  spaceBat->spriteSizePx = 8;
-  spaceBat->boundingBox = &regularBatBoundingBox;
-  spaceBat->health = 1;
-}
-
-uint16_t lastDraculaSpawnScore = 20;
-void spawnDracula(t_spaceBat *dracula) {
-  dracula->spriteSizePx = 16;
-  dracula->boundingBox = &draculaBoundingBox;
-  dracula->health = 3;
-}
-
 void spawnEnemy(t_spaceBat *enemy) {
-  if (score >= lastDraculaSpawnScore && score % pointsPerWave == 0) {
-    lastDraculaSpawnScore = score;
-    spawnDracula(enemy);
-  } else {
-    spawnBat(enemy);
-  }
-
   enemy->isActive = true;
   enemy->X = rand() % 48 + 64;
   enemy->Y = rand() % (64 - enemy->spriteSizePx);
@@ -112,12 +98,33 @@ void spawnEnemy(t_spaceBat *enemy) {
   enemy->currentPathStepIndex = rand() % pathLength;
 }
 
+void spawnBat(t_spaceBat *spaceBat) {
+  spawnEnemy(spaceBat);
+  spaceBat->spriteSizePx = 8;
+  spaceBat->boundingBox = &regularBatBoundingBox;
+  spaceBat->health = 1;
+}
+
+void spawnDracula(t_spaceBat *dracula) {
+  spawnEnemy(dracula);
+  dracula->spriteSizePx = 16;
+  dracula->boundingBox = &draculaBoundingBox;
+  dracula->health = 3;
+}
+
+void spawnMegaDracular(t_spaceBat *megadracula) {
+  spawnEnemy(megadracula);
+  megadracula->spriteSizePx = 32;
+  megadracula->boundingBox = &draculaBoundingBox;
+  megadracula->health = 10;
+}
+
 void initEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
     spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox, 8, 0, 0, 1};
   }
   for (int i = 0; i < numBats; i++) {
-    spawnEnemy(&spaceBats[i]);
+    spawnBat(&spaceBats[i]);
   }
 }
 
@@ -213,7 +220,7 @@ void drawScoreAndSevenYearsAgo() {
 
 void drawTank() {
   if (!player.deathAnimationFrame || player.deathAnimationFrame % 2 == 0) {
-    arduboy.drawBitmap(player.X, player.Y, tank[player.idleAnimationFrame], player.spriteSizePx, player.spriteSizePx, WHITE);
+    arduboy.drawBitmap(player.X, player.Y, tankFrames[player.idleAnimationFrame], player.spriteSizePx, player.spriteSizePx, WHITE);
   }
 
   if (arduboy.everyXFrames(16)) {
@@ -229,6 +236,10 @@ void drawTank() {
   }
 }
 
+boolean megadraculaLives = false;
+uint16_t lastDraculaSpawnScore = 20;
+uint16_t nextMegadraculaAtScore = 40;
+
 void drawBats() {
   for (int i = 0; i < maxEnemies; i++) {
     t_spaceBat *spaceBat = &spaceBats[i];
@@ -240,10 +251,12 @@ void drawBats() {
     }
 
     if (spaceBat->isActive) {
-      if (spaceBat->spriteSizePx == 16) {
-        arduboy.drawBitmap(spaceBat->X, spaceBat->Y, boss[spaceBat->idleAnimationFrame], spaceBat->spriteSizePx, spaceBat->spriteSizePx, WHITE);
+      if (spaceBat->spriteSizePx == 32) {
+        arduboy.drawBitmap(spaceBat->X, spaceBat->Y, megadraculaFrames[spaceBat->idleAnimationFrame], spaceBat->spriteSizePx, spaceBat->spriteSizePx, WHITE);
+      } else if (spaceBat->spriteSizePx == 16) {
+        arduboy.drawBitmap(spaceBat->X, spaceBat->Y, draculaFrames[spaceBat->idleAnimationFrame], spaceBat->spriteSizePx, spaceBat->spriteSizePx, WHITE);
       } else {
-        arduboy.drawBitmap(spaceBat->X, spaceBat->Y, bat[spaceBat->idleAnimationFrame], spaceBat->spriteSizePx, spaceBat->spriteSizePx, WHITE);
+        arduboy.drawBitmap(spaceBat->X, spaceBat->Y, batFrames[spaceBat->idleAnimationFrame], spaceBat->spriteSizePx, spaceBat->spriteSizePx, WHITE);
       }
     }
 
@@ -252,7 +265,7 @@ void drawBats() {
       arduboy.drawBitmap(
           currentHitSpaceBat->X - 4,
           currentHitSpaceBat->Y - 4,
-          boom[5 - currentHitSpaceBat->hitAnimationFrame],
+          boomFrames[5 - currentHitSpaceBat->hitAnimationFrame],
           16, 16, WHITE
       );
 
@@ -261,6 +274,10 @@ void drawBats() {
       if (currentHitSpaceBat->hitAnimationFrame == 0) {
         if (currentHitSpaceBat->health == 0) {
           currentHitSpaceBat->isActive = false;
+          if (megadraculaLives) {
+            megadraculaLives = false;
+            nextMegadraculaAtScore << 1;
+          }
         }
       }
     }
@@ -311,7 +328,7 @@ void drawShootyShootyBoom() {
 
       arduboy.drawFastHLine(player.X + player.spriteSizePx, laserY, laserWidth, WHITE);
       if (currentShotCooldown > 21) {
-        arduboy.drawBitmap(player.X + player.spriteSizePx, player.Y, pew[(30 - currentShotCooldown) / 3], player.spriteSizePx, player.spriteSizePx, WHITE);
+        arduboy.drawBitmap(player.X + player.spriteSizePx, player.Y, pewFrames[(30 - currentShotCooldown) / 3], player.spriteSizePx, player.spriteSizePx, WHITE);
       }
     }
 
@@ -346,13 +363,28 @@ void advanceEnemies() {
 
 void sweepAndSpawn() {
   if (!player.deathAnimationFrame && arduboy.everyXFrames(spawnRate)) {
+      if (megadraculaLives) { return; }
+
       uint8_t spawnedThisWave = 0;
 
       uint8_t maxToSpawn = score / pointsPerWave / 2;
       for (int i = 0; i < maxEnemies; i++) {
         t_spaceBat *spaceBat = &spaceBats[i];
         if (!spaceBat->isActive && spawnedThisWave <= maxToSpawn) {
-          spawnEnemy(spaceBat);
+          if (score >= nextMegadraculaAtScore && !megadraculaLives) {
+            for (int j = 0; j < maxEnemies; j++) {
+              spaceBats[i].isActive = false;
+            }
+            spawnMegaDracular(spaceBat);
+            megadraculaLives = true;
+            break;
+          } else if (score >= lastDraculaSpawnScore && score % pointsPerWave == 0) {
+            lastDraculaSpawnScore = score;
+            spawnDracula(spaceBat);
+          } else {
+            spawnBat(spaceBat);
+          }
+
           spawnedThisWave++;
         }
       }

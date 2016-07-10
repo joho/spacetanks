@@ -17,7 +17,7 @@
 uint8_t gameState = GAME_STATE_BANNER;
 
 void drawBanner() {
-  arduboy.drawBitmap(0, 0, banner[0], screenWidth, screenHeight, WHITE);
+  arduboy.drawBitmap(0, 0, bannerFrames[0], screenWidth, screenHeight, WHITE);
 }
 
 void stateBanner() {

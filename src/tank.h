@@ -1,6 +1,10 @@
-const uint8_t tankFrameCount = 3;
+#ifndef TANK_H
+#define TANK_H
 
-const uint8_t PROGMEM tank[][8] = {
+const uint8_t tankFrameCount = 3;
+const uint8_t tankFrameWidth = 8;
+const uint8_t tankFrameHeight = 8;
+const uint8_t PROGMEM tankFrames[][8] = {
   /* Frame number 0
       ## ## # 
        #   #  
@@ -35,3 +39,5 @@ const uint8_t PROGMEM tank[][8] = {
   */
   {0x40,0x7f,0x01,0x5c,0x49,0x6b,0x09,0x08}
 };
+
+#endif
