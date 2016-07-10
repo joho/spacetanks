@@ -1,6 +1,5 @@
 #include <Arduboy.h>
-
-// #include <avr/pgmspace.h>
+#include <avr/pgmspace.h>
 
 #include "tank.h"
 #include "bat.h"
@@ -94,7 +93,7 @@ void handleInput() {
   if (arduboy.pressed(UP_BUTTON)) {
       arduboy.setCursor(62, 4);
 
-      if (player.Y >= 0) {
+      if (player.Y > 0) {
         player.Y--;
       }
   }
@@ -102,7 +101,7 @@ void handleInput() {
   if (arduboy.pressed(DOWN_BUTTON)) {
       arduboy.setCursor(62, 52);
 
-      if (player.Y <= screenHeight) {
+      if (player.Y < screenHeight - spriteSizePx) {
         player.Y++;
       }
   }
@@ -110,7 +109,7 @@ void handleInput() {
   if (arduboy.pressed(LEFT_BUTTON)) {
       arduboy.setCursor(30, 30);
 
-      if (player.X >= 0) {
+      if (player.X > 0) {
         player.X--;
       }
   }
@@ -118,7 +117,7 @@ void handleInput() {
   if (arduboy.pressed(RIGHT_BUTTON)) {
       arduboy.setCursor(92, 30);
 
-      if (player.X <= screenWidth) {
+      if (player.X < screenWidth - spriteSizePx) {
         player.X++;
       }
   }
