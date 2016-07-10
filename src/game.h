@@ -47,7 +47,7 @@ uint8_t currentShotCooldown = 0;
 const uint8_t maxEnemies = 20;
 const uint8_t numBats = 3;
 
-const uint16_t spawnRate = 5 * frameRate;
+const uint16_t spawnRate = 6 * frameRate;
 const uint8_t pointsPerWave = 20;
 
 const int maxPaths = 8;
@@ -382,7 +382,7 @@ void sweepAndSpawn() {
 
       uint8_t spawnedThisWave = 0;
 
-      uint8_t maxToSpawn = score / pointsPerWave / 2;
+      uint8_t maxToSpawn = score / pointsPerWave;
       uint8_t probabilityOfDracular = score / pointsPerWave;
 
       for (int i = 0; i < maxEnemies; i++) {
