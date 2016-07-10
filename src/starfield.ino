@@ -119,12 +119,13 @@ void initEnemies() {
 }
 
 void calculatePlayerCollision() {
-  for (int i = 0; i <= maxEnemies; i++) {
+  for (int i = 0; i < maxEnemies; i++) {
     t_spaceBat *spaceBat = &spaceBats[i];
     if (!spaceBat->isActive) { continue; }
 
-    if (hasBoundingBoxOverlap(spaceBat)) {
-      player.deathAnimationFrame = 3 * frameRate;
+    if (!player.deathAnimationFrame && hasBoundingBoxOverlap(spaceBat)) {
+      player.deathAnimationFrame = 2 * frameRate;
+      score = 0;
       break;
     }
   }
