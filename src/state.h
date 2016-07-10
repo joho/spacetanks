@@ -20,16 +20,17 @@ void drawBanner() {
 }
 
 void stateBanner() {
+  // cock
   if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
-    // initIntro();
-    gameState = GAME_STATE_START;
+    initIntro();
+    gameState = GAME_STATE_INTRO;
   }
 
   drawBanner();
 }
 
 void stateIntro() {
-  if (arduboy.pressed(A_BUTTON | B_BUTTON) || introFinished) {
+  if (introFinished) {
     gameState = GAME_STATE_START;
   }
 

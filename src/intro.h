@@ -9,8 +9,8 @@
 const char *introMessages[] = {
   "The year is 20XX",
   "War is beginning",
-  "Dracula takes to the stars",
-  "Man your tank for great honor",
+  "Dracula takes\n   to the stars",
+  "Man your tank\n   for great honor",
   "...",
   "...and survival!"
 };
@@ -26,11 +26,11 @@ void initIntro() {
 }
 
 void drawIntro() {
-  if(arduboy.everyXFrames(INTRO_MESSAGE_DURATION)) introMessage++;
-  if(introMessage > INTRO_MESSAGE_COUNT) introFinished = true;
+  if(arduboy.everyXFrames(INTRO_MESSAGE_DURATION)) { introMessage++; }
+  if(introMessage >= INTRO_MESSAGE_COUNT) { introFinished = true; }
 
   if(!introFinished) {
-    arduboy.setCursor(20, 20);
+    arduboy.setCursor(18, 20);
     arduboy.print(introMessages[introMessage]);
   }
 }
