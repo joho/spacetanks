@@ -118,7 +118,6 @@ void calculatePlayerCollision() {
 
     if (!player.deathAnimationFrame && hasBoundingBoxOverlap(spaceBat)) {
       player.deathAnimationFrame = 2 * frameRate;
-      score = 0;
       break;
     }
   }
@@ -268,6 +267,8 @@ void drawShootyShootyBoom() {
 }
 
 void advanceEnemies() {
+  if (player.deathAnimationFrame) { return; }
+
   for (int i = 0; i < maxEnemies; i++) {
     t_spaceBat *spaceBat = &spaceBats[i];
     if (arduboy.everyXFrames(10)) {
@@ -287,7 +288,7 @@ void advanceEnemies() {
 }
 
 void sweepAndSpawn() {
-  if (arduboy.everyXFrames(spawnRate)) {
+  if (!player.deathAnimationFrame && arduboy.everyXFrames(spawnRate)) {
       uint8_t spawnedThisWave = 0;
 
       uint8_t maxToSpawn = (score / pointsPerWave) * 3;
