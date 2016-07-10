@@ -117,6 +117,9 @@ void spawnMegaDracular(t_spaceBat *megadracula) {
   megadracula->spriteSizePx = 32;
   megadracula->boundingBox = &megadraculaBoundingBox;
   megadracula->health = 10;
+
+  megadracula->X = 72;
+  megadracula->Y = 16;
 }
 
 void initEnemies() {
