@@ -6,6 +6,7 @@
 #include "globals.h"
 #include "intro.h"
 #include "utils.h"
+#include "death.h"
 
 #define GAME_STATE_BANNER  0
 #define GAME_STATE_INTRO   1
@@ -64,7 +65,9 @@ void statePlaying() {
 }
 
 void stateDead() {
-  arduboy.print("YOU LOSE");
+  if (!isShowingDeathMessage()) {
+    gameState = GAME_STATE_BANNER;
+  }
 }
 
 typedef void (*FunctionPointer) ();
