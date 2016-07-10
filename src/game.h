@@ -13,7 +13,6 @@ const uint8_t screenHeight = SCREEN_HEIGHT;
 
 uint8_t spriteSizePx = 8;
 
-//boolean gameStarted = false;
 uint16_t score = 0;
 
 struct t_boundingBox {
@@ -312,7 +311,5 @@ void drawStarField()
 
   }
 }
-
-// TODO review the below
 
 #endif
