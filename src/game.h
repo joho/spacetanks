@@ -8,6 +8,7 @@
 #include "bat.h"
 #include "pew.h"
 #include "boom.h"
+#include "boss.h"
 
 const uint8_t frameRate = FRAMERATE;
 const uint8_t screenWidth = SCREEN_WIDTH;
@@ -62,24 +63,37 @@ const t_boundingBox regularBatBoundingBox = {
   6, 4
 };
 
+const t_boundingBox draculaBoundingBox = {
+  0, 0,
+  15, 15
+};
+
 t_spaceBat spaceBats[maxEnemies];
 
 t_spaceBat *currentHitSpaceBat;
 
 void spawnBat(t_spaceBat *spaceBat) {
   spaceBat->spriteSizePx = 8;
-  spaceBat->X = rand() % 48 + 64;
-  spaceBat->Y = rand() % (64 - spaceBat->spriteSizePx);
-  spaceBat->isActive = true;
   spaceBat->boundingBox = &regularBatBoundingBox;
 }
 
 uint16_t lastDraculaSpawnScore = 0;
 void spawnDracula(t_spaceBat *dracula) {
+  dracula->spriteSizePx = 16;
+  dracula->boundingBox = &draculaBoundingBox;
 }
 
 void spawnEnemy(t_spaceBat *enemy) {
-  spawnBat(enemy);
+  if (score != lastDraculaSpawnScore && score % pointsPerWave == 0) {
+    lastDraculaSpawnScore = score;
+    spawnDracula(enemy);
+  } else {
+    spawnBat(enemy);
+  }
+
+  enemy->isActive = true;
+  enemy->X = rand() % 48 + 64;
+  enemy->Y = rand() % (64 - enemy->spriteSizePx);
 }
 
 void initEnemies() {
@@ -212,7 +226,11 @@ void drawBats() {
     }
 
     if (spaceBat->isActive) {
-      arduboy.drawBitmap(spaceBat->X, spaceBat->Y, bat[spaceBat->idleAnimationFrame], spaceBat->spriteSizePx, spaceBat->spriteSizePx, WHITE);
+      if (spaceBat->spriteSizePx == 16) {
+        arduboy.drawBitmap(spaceBat->X, spaceBat->Y, boss[spaceBat->idleAnimationFrame], spaceBat->spriteSizePx, spaceBat->spriteSizePx, WHITE);
+      } else {
+        arduboy.drawBitmap(spaceBat->X, spaceBat->Y, bat[spaceBat->idleAnimationFrame], spaceBat->spriteSizePx, spaceBat->spriteSizePx, WHITE);
+      }
     }
 
     // draw explosion over hit bat
