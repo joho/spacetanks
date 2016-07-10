@@ -67,10 +67,18 @@ t_spaceBat spaceBats[maxEnemies];
 t_spaceBat *currentHitSpaceBat;
 
 void spawnBat(t_spaceBat *spaceBat) {
+  spaceBat->spriteSizePx = 8;
   spaceBat->X = rand() % 48 + 64;
   spaceBat->Y = rand() % (64 - spaceBat->spriteSizePx);
   spaceBat->isActive = true;
   spaceBat->boundingBox = &regularBatBoundingBox;
+}
+
+void spawnDracula(t_spaceBat *dracula) {
+}
+
+void spawnEnemy(t_spaceBat *enemy) {
+  spawnBat(enemy);
 }
 
 void initEnemies() {
@@ -78,7 +86,7 @@ void initEnemies() {
     spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox, 8};
   }
   for (int i = 0; i < numBats; i++) {
-    spawnBat(&spaceBats[i]);
+    spawnEnemy(&spaceBats[i]);
   }
 }
 
@@ -213,7 +221,7 @@ void drawBats() {
           currentHitSpaceBat->Y - 4,
           boom[5 - currentHitSpaceBat->hitAnimationFrame],
           16, 16, WHITE
-        );
+      );
 
       currentHitSpaceBat->hitAnimationFrame--;
 
@@ -295,7 +303,7 @@ void sweepAndSpawn() {
       for (int i = 0; i < maxEnemies; i++) {
         t_spaceBat *spaceBat = &spaceBats[i];
         if (!spaceBat->isActive && spawnedThisWave <= maxToSpawn) {
-          spawnBat(spaceBat);
+          spawnEnemy(spaceBat);
           spawnedThisWave++;
         }
       }
