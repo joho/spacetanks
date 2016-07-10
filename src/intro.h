@@ -16,13 +16,14 @@ const char *introMessages[] = {
   "...and survival!"
 };
 
-uint8_t introMessage = 0;
-boolean introFinished = false;
-uint8_t introFrameCount = 0;
+uint8_t introMessage;
+boolean introFinished;
+uint8_t introFrameCount;
 
 void initIntro() {
   introMessage = 0;
   introFinished = false;
+  introFrameCount = 0;
   arduboy.setTextSize(1);
   arduboy.setTextWrap(true);
 

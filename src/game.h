@@ -50,12 +50,15 @@ const uint8_t numBats = 3;
 const uint16_t spawnRate = 5 * frameRate;
 const uint8_t pointsPerWave = 20;
 
-const int maxPaths = 3;
+const int maxPaths = 6;
 const int pathLength = 4;
 int8_t paths[][pathLength][2] = {
   {{-1, -1}, {-2, 0}, {-1, 1}, {-1, 0}},
   {{-1, -1}, {0, 0}, {-1, -1}, {-2, 0}},
   {{0, 2}, {-1, 1}, {-1, 2}, {-1, 0}},
+  {{-1, 0}, {0, 0}, {-3, 0}, {0, 0}},
+  {{-1, -1}, {0, 0}, {-1, -1}, {-2, 0}},
+  {{0, -2}, {-1, 1}, {0, -2}, {-2, 0}},
 };
 
 struct t_spaceBat {
@@ -90,6 +93,10 @@ t_spaceBat spaceBats[maxEnemies];
 
 t_spaceBat *currentHitSpaceBat;
 
+boolean megadraculaLives;
+uint16_t nextDraculaAtScore;
+uint16_t nextMegadraculaAtScore;
+
 void spawnEnemy(t_spaceBat *enemy) {
   enemy->isActive = true;
   enemy->X = rand() % 48 + 64;
@@ -123,6 +130,10 @@ void spawnMegaDracular(t_spaceBat *megadracula) {
 }
 
 void initEnemies() {
+  megadraculaLives = false;
+  nextDraculaAtScore = 20;
+  nextMegadraculaAtScore = 40;
+
   for (int i = 0; i < maxEnemies; i++) {
     spaceBats[i] = {0, 0, false, i % 3, 0, &regularBatBoundingBox, 8, 0, 0, 1};
   }
@@ -239,9 +250,6 @@ void drawTank() {
   }
 }
 
-boolean megadraculaLives = false;
-uint16_t lastDraculaSpawnScore = 20;
-uint16_t nextMegadraculaAtScore = 40;
 
 void drawBats() {
   for (int i = 0; i < maxEnemies; i++) {
@@ -300,13 +308,13 @@ void drawShootyShootyBoom() {
       arduboy.tunes.tone(300, 50);
     }
 
-    if (currentShotCooldown == 1) {
+    if (currentShotCooldown == 20) {
       arduboy.setRGBled(0, 0, 0);
-    } else {
-      arduboy.setRGBled(254, 8 * currentShotCooldown, 8 * currentShotCooldown);
     }
 
     if (currentShotCooldown > 20) {
+      arduboy.setRGBled(25 * (shootCooldown - 20), 0, 0);
+
       int laserY = player.Y + 3;
       int laserWidth = screenWidth - (player.X + player.spriteSizePx);
 
@@ -381,8 +389,8 @@ void sweepAndSpawn() {
             spawnMegaDracular(spaceBat);
             megadraculaLives = true;
             break;
-          } else if (score >= lastDraculaSpawnScore && score % pointsPerWave == 0) {
-            lastDraculaSpawnScore = score;
+          } else if (score >= nextDraculaAtScore && score % pointsPerWave == 0) {
+            nextDraculaAtScore = score;
             spawnDracula(spaceBat);
           } else {
             spawnBat(spaceBat);
