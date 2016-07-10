@@ -2,6 +2,7 @@
 #define INTRO_H
 
 #include "globals.h"
+#include "music.h"
 
 #define INTRO_MESSAGE_COUNT 6
 #define INTRO_MESSAGE_DURATION 120
@@ -13,10 +14,6 @@ const char *introMessages[] = {
   "Man your tank\n   for great honor",
   "...",
   "...and survival!"
-};
-
-const byte introMusic[] = {
-  0x10, 0x12, 0x14, 0x15, 0x17
 };
 
 uint8_t introMessage = 0;
@@ -40,7 +37,7 @@ void drawIntro() {
   if(introFrameCount > FRAMERATE &&
       (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON))) {
     introFinished = true;
-    arduboy.audio.off();
+    arduboy.tunes.stopScore();
   }
 
   if(!introFinished) {
