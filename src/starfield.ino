@@ -37,7 +37,7 @@ const uint8_t maxEnemies = 20;
 const uint8_t numBats = 3;
 
 const uint16_t spawnRate = 5 * frameRate;
-const uint16_t pointsPerWave = 15;
+const uint8_t pointsPerWave = 15;
 struct t_spaceBat {
   uint8_t X;
   uint8_t Y;
@@ -72,13 +72,7 @@ void loop() {
 
     if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
       arduboy.initRandomSeed();
-
-      for (int i = 0; i < maxEnemies; i++) {
-        spaceBats[i] = {0, 0, false, i % 3, 0};
-      }
-      for (int i = 0; i < numBats; i++) {
-        spawnBat(&spaceBats[i]);
-      }
+      initEnemies();
       gameStarted = true;
     }
     return;
@@ -93,6 +87,15 @@ void loop() {
   advanceEnemies();
   sweepAndSpawn();
   arduboy.display();
+}
+
+void initEnemies() {
+  for (int i = 0; i < maxEnemies; i++) {
+    spaceBats[i] = {0, 0, false, i % 3, 0};
+  }
+  for (int i = 0; i < numBats; i++) {
+    spawnBat(&spaceBats[i]);
+  }
 }
 
 void handleInput() {
