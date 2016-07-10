@@ -264,6 +264,12 @@ void drawShootyShootyBoom() {
       arduboy.tunes.tone(300, 50);
     }
 
+    if (currentShotCooldown == 1) {
+      arduboy.setRGBled(0, 0, 0);
+    } else {
+      arduboy.setRGBled(8 * currentShotCooldown, 8 * currentShotCooldown, 255);
+    }
+
     if (currentShotCooldown > 20) {
       int laserY = player.Y + 3;
       int laserWidth = screenWidth - (player.X + player.spriteSizePx);
