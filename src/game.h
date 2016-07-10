@@ -276,7 +276,7 @@ void drawBats() {
           currentHitSpaceBat->isActive = false;
           if (megadraculaLives) {
             megadraculaLives = false;
-            nextMegadraculaAtScore << 1;
+            nextMegadraculaAtScore *= 2;
           }
         }
       }
@@ -316,7 +316,7 @@ void drawShootyShootyBoom() {
             laserWidth = spaceBat->X - (player.X + player.spriteSizePx) + 2;
 
             spaceBat->hitAnimationFrame = 5;
-            score += spaceBat->health;
+            score++;
             if (spaceBat->health > 0) { spaceBat->health--; }
 
             currentHitSpaceBat = spaceBat;
