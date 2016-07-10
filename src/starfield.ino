@@ -24,15 +24,18 @@ uint8_t spriteSizePx = 8;
 boolean gameStarted = false;
 uint8_t score = 0;
 
-int tankX;
-int tankY;
-int tankCurrentFrame;
-int score = 0;
+struct t_tank {
+  uint8_t X;
+  uint8_t Y;
+  uint8_t idleAnimationFrame;
+};
+t_tank player = {16, 48, 0};
 
 const uint8_t shootCooldown = 30;
 uint8_t currentShotCooldown = 0;
 
-const uint8_t numBats = 20;
+const uint8_t maxEnemies = 20;
+const uint8_t numBats = 3;
 
 struct t_spaceBat {
   uint8_t X;
@@ -60,12 +63,6 @@ void setup() {
   // put your setup code here, to run once:
   arduboy.beginNoLogo();
   arduboy.setFrameRate(frameRate);
-
-  tankX = 16;
-  tankY = 48;
-  tankCurrentFrame = 0;
-  // TODO this is KEY to overwriting the arduboy bullshit
-  // Serial.begin(9600);
 }
 
 void loop() {
@@ -97,32 +94,32 @@ void handleInput() {
   if (arduboy.pressed(UP_BUTTON)) {
       arduboy.setCursor(62, 4);
 
-      if (tankY >= 0) {
-        tankY--;
+      if (player.Y >= 0) {
+        player.Y--;
       }
   }
 
   if (arduboy.pressed(DOWN_BUTTON)) {
       arduboy.setCursor(62, 52);
 
-      if (tankY <= screenHeight) {
-        tankY++;
+      if (player.Y <= screenHeight) {
+        player.Y++;
       }
   }
 
   if (arduboy.pressed(LEFT_BUTTON)) {
       arduboy.setCursor(30, 30);
 
-      if (tankX >= 0) {
-        tankX--;
+      if (player.X >= 0) {
+        player.X--;
       }
   }
 
   if (arduboy.pressed(RIGHT_BUTTON)) {
       arduboy.setCursor(92, 30);
 
-      if (tankX <= screenWidth) {
-        tankX++;
+      if (player.X <= screenWidth) {
+        player.X++;
       }
   }
 
@@ -143,11 +140,11 @@ void drawScoreAndSevenYearsAgo() {
 }
 
 void drawTank() {
-  arduboy.drawBitmap(tankX, tankY, tank[tankCurrentFrame], spriteSizePx, spriteSizePx, WHITE);
+  arduboy.drawBitmap(player.X, player.Y, tank[player.idleAnimationFrame], spriteSizePx, spriteSizePx, WHITE);
 
   if (arduboy.everyXFrames(16)) {
-    tankCurrentFrame++;
-    tankCurrentFrame = tankCurrentFrame % 3;
+    player.idleAnimationFrame++;
+    player.idleAnimationFrame = player.idleAnimationFrame % 3;
   }
 }
 
@@ -188,27 +185,27 @@ void drawShootyShootyBoom() {
     }
 
     if (currentShotCooldown > 20) {
-      int laserY = tankY + 3;
-      int laserWidth = screenWidth - (tankX + spriteSizePx);
+      int laserY = player.Y + 3;
+      int laserWidth = screenWidth - (player.X + spriteSizePx);
 
       if (!currentHitSpaceBat) {
-        for (int i = 0; i <= numBats; i++) {
+        for (int i = 0; i < numBats; i++) {
           t_spaceBat *spaceBat = &spaceBats[i];
           if (!spaceBat->isActive) { continue; }
           if (laserY >= spaceBat->Y + 2 && laserY <= spaceBat->Y + 6) {
-            laserWidth = spaceBat->X - (tankX + spriteSizePx) + 2;
+            laserWidth = spaceBat->X - (player.X + spriteSizePx) + 2;
             spaceBat->hitAnimationFrame = 5;
             currentHitSpaceBat = spaceBat;
             score++;
           }
         }
       } else {
-        laserWidth = currentHitSpaceBat->X - (tankX + spriteSizePx) + 2;
+        laserWidth = currentHitSpaceBat->X - (player.X + spriteSizePx) + 2;
       }
 
-      arduboy.drawFastHLine(tankX + spriteSizePx, laserY, laserWidth, WHITE);
+      arduboy.drawFastHLine(player.X + spriteSizePx, laserY, laserWidth, WHITE);
       if (currentShotCooldown > 21) {
-        arduboy.drawBitmap(tankX + spriteSizePx, tankY, pew[(30 - currentShotCooldown) / 3], spriteSizePx, spriteSizePx, WHITE);
+        arduboy.drawBitmap(player.X + spriteSizePx, player.Y, pew[(30 - currentShotCooldown) / 3], spriteSizePx, spriteSizePx, WHITE);
       }
     }
 
@@ -217,7 +214,7 @@ void drawShootyShootyBoom() {
 }
 
 void advanceEnemies() {
-  for (int i = 0; i <= numBats; i++) {
+  for (int i = 0; i < numBats; i++) {
     t_spaceBat *spaceBat = &spaceBats[i];
     if (arduboy.everyXFrames(10)) {
       if (spaceBat->isActive) {
