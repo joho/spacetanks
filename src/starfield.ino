@@ -30,12 +30,18 @@ struct t_boundingBox {
   uint8_t bottomRightYOffset;
 };
 
+t_boundingBox tankBoundingBox = {
+  0, 0,
+  8, 7
+};
 struct t_tank {
   uint8_t X;
   uint8_t Y;
   uint8_t idleAnimationFrame;
+  uint8_t deathAnimationFrame;
+  const t_boundingBox *boundingBox;
 };
-t_tank player = {16, 48, 0};
+t_tank player = {16, 48, 0, 0, &tankBoundingBox};
 
 const uint8_t shootCooldown = 30;
 uint8_t currentShotCooldown = 0;
@@ -93,6 +99,7 @@ void loop() {
 
   handleInput();
   drawStarField();
+  calculatePlayerCollision();
   drawShootyShootyBoom();
   drawBats();
   drawTank();
@@ -111,7 +118,39 @@ void initEnemies() {
   }
 }
 
+void calculatePlayerCollision() {
+  for (int i = 0; i <= maxEnemies; i++) {
+    t_spaceBat *spaceBat = &spaceBats[i];
+    if (!spaceBat->isActive) { continue; }
+
+    if (hasBoundingBoxOverlap(spaceBat)) {
+      player.deathAnimationFrame = 3 * frameRate;
+      break;
+    }
+  }
+}
+
+boolean hasBoundingBoxOverlap(t_spaceBat *spaceBat) {
+  return isPointInBox(player.X + player.boundingBox->topLeftXOffset, player.Y + player.boundingBox->topLeftYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox) ||
+         isPointInBox(player.X + player.boundingBox->bottomRightXOffset, player.Y + player.boundingBox->topLeftYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox) ||
+         isPointInBox(player.X + player.boundingBox->topLeftXOffset, player.Y + player.boundingBox->bottomRightYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox) ||
+         isPointInBox(player.X + player.boundingBox->bottomRightXOffset, player.Y + player.boundingBox->bottomRightYOffset, spaceBat->X, spaceBat->Y, spaceBat->boundingBox);
+}
+
+boolean isPointInBox(uint8_t pointX, uint8_t pointY, uint8_t spriteX, uint8_t spriteY, const t_boundingBox *boundingBox) {
+  uint8_t leftX = spriteX + boundingBox->topLeftXOffset;
+  uint8_t topY = spriteY + boundingBox->topLeftYOffset;
+
+  uint8_t rightX = spriteX + boundingBox->bottomRightXOffset;
+  uint8_t bottomY = spriteY + boundingBox->bottomRightYOffset;
+
+  return pointX >= leftX && pointX <= rightX &&
+         pointY >= topY && pointY <= bottomY;
+}
+
 void handleInput() {
+  if (player.deathAnimationFrame) { return; }
+
   if (arduboy.pressed(UP_BUTTON)) {
       arduboy.setCursor(62, 4);
 
@@ -161,11 +200,17 @@ void drawScoreAndSevenYearsAgo() {
 }
 
 void drawTank() {
-  arduboy.drawBitmap(player.X, player.Y, tank[player.idleAnimationFrame], spriteSizePx, spriteSizePx, WHITE);
+  if (!player.deathAnimationFrame || player.deathAnimationFrame % 2 == 0) {
+    arduboy.drawBitmap(player.X, player.Y, tank[player.idleAnimationFrame], spriteSizePx, spriteSizePx, WHITE);
+  }
 
   if (arduboy.everyXFrames(16)) {
     player.idleAnimationFrame++;
     player.idleAnimationFrame = player.idleAnimationFrame % 3;
+  }
+
+  if (player.deathAnimationFrame) {
+    player.deathAnimationFrame--;
   }
 }
 
