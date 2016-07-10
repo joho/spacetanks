@@ -23,6 +23,13 @@ uint8_t spriteSizePx = 8;
 boolean gameStarted = false;
 uint16_t score = 0;
 
+struct t_boundingBox {
+  uint8_t topLeftXOffset;
+  uint8_t topLeftYOffset;
+  uint8_t bottomRightXOffset;
+  uint8_t bottomRightYOffset;
+};
+
 struct t_tank {
   uint8_t X;
   uint8_t Y;
@@ -44,6 +51,12 @@ struct t_spaceBat {
   boolean isActive;
   uint8_t idleAnimationFrame;
   uint8_t hitAnimationFrame;
+  const t_boundingBox *boundingBox;
+};
+
+const t_boundingBox regularBatBoundingBox = {
+  1, 2,
+  6, 4
 };
 
 t_spaceBat spaceBats[maxEnemies];
@@ -160,6 +173,7 @@ void spawnBat(t_spaceBat *spaceBat) {
   spaceBat->X = rand() % 48 + 64;
   spaceBat->Y = rand() % (64 - spriteSizePx);
   spaceBat->isActive = true;
+  spaceBat->boundingBox = &regularBatBoundingBox;
 }
 
 void drawBats() {
@@ -206,7 +220,7 @@ void drawShootyShootyBoom() {
         for (int i = 0; i < numBats; i++) {
           t_spaceBat *spaceBat = &spaceBats[i];
           if (!spaceBat->isActive) { continue; }
-          if (laserY >= spaceBat->Y + 2 && laserY <= spaceBat->Y + 6) {
+          if (hasLaserHit(player.X + spriteSizePx, laserY, spaceBat)) {
             laserWidth = spaceBat->X - (player.X + spriteSizePx) + 2;
             spaceBat->hitAnimationFrame = 5;
             currentHitSpaceBat = spaceBat;
@@ -225,6 +239,12 @@ void drawShootyShootyBoom() {
 
     currentShotCooldown--;
   }
+}
+
+boolean hasLaserHit(uint8_t laserOriginX, uint8_t y, t_spaceBat *spaceBat) {
+  return laserOriginX < spaceBat->X + spaceBat->boundingBox->topLeftXOffset &&
+      y >= spaceBat->Y + spaceBat->boundingBox->topLeftYOffset &&
+      y <= spaceBat->Y + spaceBat->boundingBox->bottomRightYOffset;
 }
 
 void advanceEnemies() {
