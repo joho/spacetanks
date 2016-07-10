@@ -1,26 +1,19 @@
-#include <Arduboy.h>
-#include <avr/pgmspace.h>
+#ifndef GAME_H
+#define GAME_H
 
+/* Bitmaps */
 #include "tank.h"
 #include "bat.h"
 #include "pew.h"
 #include "boom.h"
-#include "banner.h"
 
-Arduboy arduboy;
-
-/*
- * X and Y positions on the display are from the top left corner, thus a Y of 64 is the bottom of the screen and an X of 128 is the right side of the screen.
- * "Color" or "value" means choosing whether a pixel is lit or not - if color is 0, the pixel is off (black), if color is 1, the pixel is on (white).
- */
-
-const uint8_t frameRate = 60;
-const uint8_t screenWidth = 128;
-const uint8_t screenHeight = 64;
+const uint8_t frameRate = FRAMERATE;
+const uint8_t screenWidth = SCREEN_WIDTH;
+const uint8_t screenHeight = SCREEN_HEIGHT;
 
 uint8_t spriteSizePx = 8;
 
-boolean gameStarted = false;
+//boolean gameStarted = false;
 uint16_t score = 0;
 
 struct t_boundingBox {
@@ -34,6 +27,7 @@ t_boundingBox tankBoundingBox = {
   0, 0,
   8, 7
 };
+
 struct t_tank {
   uint8_t X;
   uint8_t Y;
@@ -41,6 +35,7 @@ struct t_tank {
   uint8_t deathAnimationFrame;
   const t_boundingBox *boundingBox;
 };
+
 t_tank player = {16, 48, 0, 0, &tankBoundingBox};
 
 const uint8_t shootCooldown = 30;
@@ -68,46 +63,6 @@ const t_boundingBox regularBatBoundingBox = {
 t_spaceBat spaceBats[maxEnemies];
 
 t_spaceBat *currentHitSpaceBat;
-
-// The year is 20XX
-// War is beginning
-// Dracula takes to the stars
-// Man your tank for great honor
-// ... (boop boop boop)
-// ...and survival
-void setup() {
-  // put your setup code here, to run once:
-  arduboy.beginNoLogo();
-  arduboy.setFrameRate(frameRate);
-}
-
-void loop() {
-  if (!arduboy.nextFrame()) { return; }
-  arduboy.clear();
-
-  if (!gameStarted) {
-    arduboy.drawBitmap(0, 0, banner[0], screenWidth, screenHeight, WHITE);
-    arduboy.display();
-
-    if (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON)) {
-      arduboy.initRandomSeed();
-      initEnemies();
-      gameStarted = true;
-    }
-    return;
-  }
-
-  handleInput();
-  drawStarField();
-  calculatePlayerCollision();
-  drawShootyShootyBoom();
-  drawBats();
-  drawTank();
-  drawScoreAndSevenYearsAgo();
-  advanceEnemies();
-  sweepAndSpawn();
-  arduboy.display();
-}
 
 void initEnemies() {
   for (int i = 0; i < maxEnemies; i++) {
@@ -358,3 +313,6 @@ void drawStarField()
   }
 }
 
+// TODO review the below
+
+#endif
