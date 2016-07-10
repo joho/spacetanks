@@ -1,1 +1,4 @@
 .pioenvs
+assets/*.png
+assets/*.h
+assets/*.json
