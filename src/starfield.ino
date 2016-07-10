@@ -21,7 +21,7 @@ const uint8_t screenHeight = 64;
 uint8_t spriteSizePx = 8;
 
 boolean gameStarted = false;
-uint8_t score = 0;
+uint16_t score = 0;
 
 struct t_tank {
   uint8_t X;
@@ -35,9 +35,9 @@ uint8_t currentShotCooldown = 0;
 
 const uint8_t maxEnemies = 20;
 const uint8_t numBats = 3;
-uint8_t waveCounter = 0;
 
 const uint16_t spawnRate = 5 * frameRate;
+const uint16_t pointsPerWave = 15;
 struct t_spaceBat {
   uint8_t X;
   uint8_t Y;
@@ -60,7 +60,6 @@ void setup() {
   // put your setup code here, to run once:
   arduboy.beginNoLogo();
   arduboy.setFrameRate(frameRate);
-
 }
 
 void loop() {
@@ -247,7 +246,7 @@ void advanceEnemies() {
 void sweepAndSpawn() {
   if (arduboy.everyXFrames(spawnRate)) {
       uint8_t spawnedThisWave = 0;
-      uint8_t maxToSpawn = score - 3 * (waveCounter + 1);
+      uint8_t maxToSpawn = score - 3 * (score / pointsPerWave);
       for (int i = 0; i < maxEnemies; i++) {
         t_spaceBat *spaceBat = &spaceBats[i];
         if (!spaceBat->isActive && spawnedThisWave <= maxToSpawn) {
