@@ -203,9 +203,9 @@ void handleInput() {
 }
 
 void drawScoreAndSevenYearsAgo() {
-  arduboy.setCursor(116, 1);
+  arduboy.setCursor(110, 1);
   char scoreBuffer[16];
-  sprintf(scoreBuffer, "%d", score);
+  sprintf(scoreBuffer, "% 3d", score);
   arduboy.print(scoreBuffer);
 }
 
@@ -294,7 +294,8 @@ void drawShootyShootyBoom() {
             laserWidth = spaceBat->X - (player.X + player.spriteSizePx) + 2;
             spaceBat->hitAnimationFrame = 5;
             currentHitSpaceBat = spaceBat;
-            score++;
+
+            score += spaceBat->spriteSizePx / 8;
           }
         }
       } else {
