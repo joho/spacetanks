@@ -35,9 +35,10 @@ struct t_tank {
   uint8_t idleAnimationFrame;
   uint8_t deathAnimationFrame;
   const t_boundingBox *boundingBox;
+  boolean isDead;
 };
 
-t_tank player = {16, 48, 0, 0, &tankBoundingBox};
+t_tank player = {16, 48, 0, 0, &tankBoundingBox, false};
 
 const uint8_t shootCooldown = 30;
 uint8_t currentShotCooldown = 0;
@@ -175,9 +176,11 @@ void drawTank() {
 
   if (player.deathAnimationFrame) {
     player.deathAnimationFrame--;
+    if (!player.deathAnimationFrame) {
+      player.isDead = true;
+    }
   }
 }
-
 
 void drawBats() {
   for (int i = 0; i < numBats; i++) {

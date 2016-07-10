@@ -57,10 +57,14 @@ void statePlaying() {
   advanceEnemies();
   sweepAndSpawn();
   arduboy.display();
+
+  if (player.isDead) {
+    gameState = GAME_STATE_DEAD;
+  }
 }
 
 void stateDead() {
-  // TODO
+  arduboy.print("YOU LOSE");
 }
 
 typedef void (*FunctionPointer) ();
