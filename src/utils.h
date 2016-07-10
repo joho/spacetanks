@@ -30,6 +30,7 @@ void drawFlashingMessage() {
   flashingMessageFrame--;
 
   if (flashingMessageFrame % 3 == 0) {
+    arduboy.setCursor(flashingMessageX, flashingMessageY);
     arduboy.setTextSize(FLASHING_MESSAGE_TEXT_SIZE);
     arduboy.print(flashingMessageText);
   }
