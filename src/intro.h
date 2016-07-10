@@ -17,6 +17,7 @@ const char *introMessages[] = {
 
 uint8_t introMessage = 0;
 boolean introFinished = false;
+uint8_t introFrameCount = 0;
 
 void initIntro() {
   introMessage = 0;
@@ -26,8 +27,13 @@ void initIntro() {
 }
 
 void drawIntro() {
+  introFrameCount++;
   if(arduboy.everyXFrames(INTRO_MESSAGE_DURATION)) { introMessage++; }
   if(introMessage >= INTRO_MESSAGE_COUNT) { introFinished = true; }
+  if(introFrameCount > FRAMERATE &&
+      (arduboy.pressed(A_BUTTON) || arduboy.pressed(B_BUTTON))) {
+    introFinished = true;
+  }
 
   if(!introFinished) {
     arduboy.setCursor(18, 20);
