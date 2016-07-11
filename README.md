@@ -2,6 +2,8 @@
 
 A @joho and @dgoodlad joint.
 
+![Space Tanks](banner.png)
+
 ```
 The year is 20XX
 War is beginning
