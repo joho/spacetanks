@@ -15,6 +15,8 @@ A game for the [Arduboy](https://arduboy.com) written at [Railscamp Adelaide 201
 
 This might be some of the worst C you ever see.
 
+Borrowed the starfield & function pointer state machine from [Team a.r.g' Star Flight](https://github.com/TEAMarg/ID-26-Star-Flight)
+
 ## Licence
 
 [MIT](LICENSE.txt) &copy; John Barton &amp; David Goodlad
